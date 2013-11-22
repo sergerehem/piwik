@@ -128,10 +128,11 @@ class Piwik_Login extends Piwik_Plugin
         $cookie = new Piwik_Cookie($authCookieName, $authCookieExpiry, $authCookiePath);
         if (!$authResult->isValid()) {
             $cookie->delete();
+            $_SESSION['captchaExpected'] = true; 
             throw new Exception(Piwik_Translate('Login_LoginPasswordNotCorrect'));
         }
 
-        if (isset($_POST['captcha_code'])) {
+        if ($_SESSION['captchaExpected']) {
             if (!strlen($_POST['captcha_code'])) {
                 $cookie->delete();
                 throw new Exception(Piwik_Translate('General_Required', Piwik_Translate('Login_Captcha')));
@@ -141,6 +142,8 @@ class Piwik_Login extends Piwik_Plugin
                 throw new Exception(Piwik_Translate('Login_InvalidCaptcha'));
             }
         }
+        
+        $_SESSION['captchaExpected'] = false;
         
         $cookie->set('login', $login);
         $cookie->set('token_auth', $auth->getHashTokenAuth($login, $authResult->getTokenAuth()));
