@@ -40,6 +40,12 @@
                        placeholder="{'General_Username'|translate}" autofocus="autofocus"/>
                 <input type="password" name="form_password" id="login_form_password" class="input" value="" size="20" tabindex="20"
                        placeholder="{'Login_Password'|translate}"/>
+                {if $AccessErrorString}                       
+                <img id="captcha" style="border: 1px solid #777;" src="./securimage/securimage_show.php" alt="CAPTCHA Image" /><br>
+                <a href="#" class="captcha" onclick="document.getElementById('captcha').src = './securimage/securimage_show.php?' + Math.random(); return false">[ Mudar Imagem ]</a></p>
+                <br>
+                <input type="text" name="captcha_code" class="input" placeholder="Informe o código de segurança" size="20" tabindex="30" maxlength="6" />                       
+                {/if}                             
                 <input type="hidden" name="form_nonce" id="login_form_nonce" value="{$nonce}"/>
             </fieldset>
 

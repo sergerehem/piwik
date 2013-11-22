@@ -131,6 +131,17 @@ class Piwik_Login extends Piwik_Plugin
             throw new Exception(Piwik_Translate('Login_LoginPasswordNotCorrect'));
         }
 
+        if (isset($_POST['captcha_code'])) {
+            if (!strlen($_POST['captcha_code'])) {
+                $cookie->delete();
+                throw new Exception(Piwik_Translate('General_Required', Piwik_Translate('Login_Captcha')));
+            }
+            if (!$this->isValidCaptcha()) {
+                $cookie->delete();
+                throw new Exception(Piwik_Translate('Login_InvalidCaptcha'));
+            }
+        }
+        
         $cookie->set('login', $login);
         $cookie->set('token_auth', $auth->getHashTokenAuth($login, $authResult->getTokenAuth()));
         $cookie->setSecure(Piwik::isHttps());
@@ -143,6 +154,13 @@ class Piwik_Login extends Piwik_Plugin
         self::removePasswordResetInfo($login);
     }
 
+    protected function isValidCaptcha() {
+        include_once PIWIK_DOCUMENT_ROOT . '/securimage/securimage.php';
+        $securimage = new Securimage();    
+        $code = $securimage->getCode();
+        return $securimage->check($_POST['captcha_code']);
+    }
+    
     /**
      * Stores password reset info for a specific login.
      *
